@@ -124,7 +124,7 @@ end
 K = min([K p n-1]);
 
 % Standard PCA (starting condition for SPCA algorithm)
-[~, S, L] = svd(X, 'econ');
+[xxx, S, L] = svd(X, 'econ');
 D = diag(S).^2/n; % PCA variances
 
 % Replicate STOP value for all components if necessary
