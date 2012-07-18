@@ -3,6 +3,8 @@
 addpath('spasm')
 addpath('../matlab')
 
+% Normalizes the columns of the data matrix
+% to have mean and variance 1.
 function Y = normalize(X)
   m = mean(X);
   v = diag(cov(X))' .^ (1/2);
@@ -10,16 +12,21 @@ function Y = normalize(X)
       ./ repmat(v, size(X, 1), 1);
 endfunction
 
+% The projection of v onto the subspace spanned
+% by the columns of A.
 function p = project(A, v)
   p = A * inv(A' * A) * A' * v;
 endfunction
 
+% The variance of the data X projected onto the
+% principal component subspace w.
 function v = variance(w, X)
   v = sum(var(project(w, X')'));
 endfunction
 
 % c : cardinality (nonzero variables)
 % X : normalized data matrix
+% v : variance of data after dimension reduction
 function v = test(c, X)
   c
   if c == 0; v = 0; return; end
