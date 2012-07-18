@@ -18,16 +18,20 @@ function v = variance(w, X)
   v = sum(var(project(w, X')'));
 endfunction
 
-function test()
-  N = 150 % number of samples
-  D = 361 % dimension of sample data
-  K = 1 % number of principle components
-  c = 150 % cardinality (nonzero variables)
-  range = [0 0 (N - 1) (D - 1)];
-  X = dlmread('../face/data', ' ', range);
-  X = normalize(X);
-  variance(spca(X, [], K, inf, -c), X)
-  variance(normc(rand(D, K)), X)
+% c : cardinality (nonzero variables)
+% X : normalized data matrix
+function v = test(c, X)
+  c
+  if c == 0; v = 0; return; end
+  v = variance(spca(X, [], 1, inf, -c), X)
 endfunction
 
-test()
+N = 6977; % number of samples
+D = 361; % dimension of sample data
+range = [0 0 (N - 1) (D - 1)];
+data = dlmread('../face/data', ' ', range);
+data = normalize(data);
+x = 0:15:150;
+y = arrayfun(@(c) test(c, data), x);
+scatter(x, y, 10, [0 0 1], 's')
+print('/tmp/a.png', '-dpng', '-S500,500')
