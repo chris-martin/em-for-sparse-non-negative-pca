@@ -36,7 +36,7 @@ endfunction
 N = 6977; % number of samples
 D = 361; % dimension of sample data
 range = [0 0 (N - 1) (D - 1)];
-data = dlmread('../face/data', ' ', range);
+data = dlmread('../data/face/data', ' ', range);
 data = normalize(data);
 x = 0:15:150;
 y = arrayfun(@(c) test(c, data), x);
