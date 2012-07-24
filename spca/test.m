@@ -56,16 +56,18 @@ function data = gene()
   data = dlmread('../data/gene/data', ' ', [0 0 (D-1) (N-1)])';
 endfunction
 
-data = gene();
+data = face();
 data = normalize(data);
 step = 50;
-x = 0:step:400;
-q = arrayfun(@(c) test(c, data), x, 'UniformOutput', false);
-r = reshape([q{:}], 2, size(x, 2));
-y = r(1,1:size(0:step:150, 2))
+x1 = 0:step:150;
+x2 = 0:step:400;
+q = arrayfun(@(c) test(c, data), x2, 'UniformOutput', false);
+r = reshape([q{:}], 2, size(x2, 2));
+y = r(1,1:size(x1, 2))
 t = r(2,:)
-scatter(0:step:150, y, 10, [0 0 1], 's')
+csvwrite('/tmp/a.csv', [x1' y'])
+scatter(x1, y, 10, [0 0 1], 's')
 print('/tmp/a.png', '-dpng', '-S500,500')
 clf()
-scatter(x, t, 10, [1 0 0], 's')
+scatter(x2, t, 10, [1 0 0], 's')
 print('/tmp/b.png', '-dpng', '-S500,500')
