@@ -27,28 +27,45 @@ endfunction
 % c : cardinality (nonzero variables)
 % X : normalized data matrix
 % v : variance of data after dimension reduction
-function v, t = test(c, X)
-  if c == 0; v = 0; return; end
-  v = variance(spca(X, [], 1, inf, -c), X)
+function a, v, t = test(c, X)
+  c
+  if c == 0;
+    t = 0;
+    v = 0;
+  else
+    t = cputime;
+    w = spca(X, [], 1, inf, -c);
+    t = cputime - t
+    v = variance(w, X)
+  end
+  a = [ v t ];
 endfunction
 
 % N : number of samples
 % D : dimension of sample data
 
-% face data
-%N = 6977;
-%D = 361;
-%data = dlmread('../data/face/data', ' ', [0 0 (N-1) (D-1)]);
+function data = face()
+  N = 6977;
+  D = 361;
+  data = dlmread('../data/face/data', ' ', [0 0 (N-1) (D-1)]);
+endfunction
 
-% gene data
-N = 72;
-D = 12582;
-data = dlmread('../data/gene/data', ' ', [0 0 (D-1) (N-1)])';
+function data = gene()
+  N = 72;
+  D = 12582;
+  data = dlmread('../data/gene/data', ' ', [0 0 (D-1) (N-1)])';
+endfunction
 
+data = gene();
 data = normalize(data);
-x = 0:15:150;
-y = arrayfun(@(c) test(c, data), x);
-x
-y
-scatter(x, y, 10, [0 0 1], 's')
+step = 50;
+x = 0:step:400;
+q = arrayfun(@(c) test(c, data), x, 'UniformOutput', false);
+r = reshape([q{:}], 2, size(x, 2));
+y = r(1,1:size(0:step:150, 2))
+t = r(2,:)
+scatter(0:step:150, y, 10, [0 0 1], 's')
 print('/tmp/a.png', '-dpng', '-S500,500')
+clf()
+scatter(x, t, 10, [1 0 0], 's')
+print('/tmp/b.png', '-dpng', '-S500,500')
