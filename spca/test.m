@@ -27,18 +27,28 @@ endfunction
 % c : cardinality (nonzero variables)
 % X : normalized data matrix
 % v : variance of data after dimension reduction
-function v = test(c, X)
-  c
+function v, t = test(c, X)
   if c == 0; v = 0; return; end
   v = variance(spca(X, [], 1, inf, -c), X)
 endfunction
 
-N = 6977; % number of samples
-D = 361; % dimension of sample data
-range = [0 0 (N - 1) (D - 1)];
-data = dlmread('../data/face/data', ' ', range);
+% N : number of samples
+% D : dimension of sample data
+
+% face data
+%N = 6977;
+%D = 361;
+%data = dlmread('../data/face/data', ' ', [0 0 (N-1) (D-1)]);
+
+% gene data
+N = 72;
+D = 12582;
+data = dlmread('../data/gene/data', ' ', [0 0 (D-1) (N-1)])';
+
 data = normalize(data);
 x = 0:15:150;
 y = arrayfun(@(c) test(c, data), x);
+x
+y
 scatter(x, y, 10, [0 0 1], 's')
 print('/tmp/a.png', '-dpng', '-S500,500')
