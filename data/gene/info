@@ -1,0 +1,29 @@
+MLL supplemental files include the following:
+
+1. Scan id file (tab-delimited text).
+This file contains link between sample names, scan names, and scaling factors.
+
+2. Processed Expression data files (2 tab-delimited text files).
+Each file contain scaled Affymetrix "average difference" expression values for 
+all samples. Expression values are identical in the two files, but the second 
+file also includes Affymetrix "Present" (P) and "Absent" (A) calls. 
+
+Linear scaling was used to reduce technical noise due to global intensity 
+differences between scans. Linear regression of all "Present" genes (Affymetrix 
+"P" calls) was used to determine the scaling factor for each scan (the first ALL 
+scan used as a reference).  The scaling factor was applied to expression values 
+(regardless of A/P call). Scaling factors ranged from 0.93 to 2.1; all scaling 
+factors are shown in scan id file.
+
+Data files include expression values for 12582 probe sets from the Affymetrix 
+U95A chip. Excluded are 25 probe sets determined by Affymetrix to be erroneous. 
+Data for 18 "spiked" (exogenous) controls were also excluded, as these 
+hybridization controls were added to only a subset of samples.
+ 
+
+3. Raw "CEL" files which contain fluorescence intensities for all probes on 
+chip. These files are zipped tar archives.  Each file contains data for 10-14 
+scans.
+
+
+
