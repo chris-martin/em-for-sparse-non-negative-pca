@@ -1,0 +1,129 @@
+\documentclass[twocolumn]{article}
+
+\usepackage{algorithm2e}
+\usepackage{dsfont}
+
+\title{Course Project for CSE 6740 / CS 7641 Summer 2012}
+\author{Nobles, Mallory \\ \texttt{mallory.nobles@gmail.com}
+  \and Martin, Christopher \\ \texttt{chris.martin@gatech.edu}
+  \and Rice, Emily \\ \texttt{ricemily84@gmail.com} }
+\date{}
+
+\begin{document}
+\maketitle
+
+In their paper, ``Expectation-Maximization for Sparse \& Non-Negative PCA'',
+Sigg and Buhmann develop an algorithm for finding principle components where
+there are two additional constraints on these vectors:
+a cardinality constraint and a non-negativity constraint.
+The cardinality constraint ensures that there are a limited number
+of non-zero elements in the principle components, while
+the non-negativity constraint guarantees that no elements of
+the principle components are negative.
+Both of these constraints have practical importance and facilitate
+interpretability and ??????.
+Typically in PCA, the dominant eigenvectors are difficult to interpret
+because they are linear combinations of all of the observed variables,
+and these linear combinations ``may mix both positive and negative weights,
+which might partly cancel each other'' (???? 2006).
+Sparse, non-negative PSA addresses both of these issues.
+Futhermore, the restrictions that these constraints impose on the
+principle components are natural in many applications of PCA.
+For example, in finance, sparse factors mean that there are
+fewer assets in the portfolio, which implies lower transaction costs.
+
+While it is desirable to be able to impose these constraints on
+the problem of estimating principle components, doing so has
+computational challenges. If either sparsity or non-negativity
+is enforced, the problem of determining the first principle component
+(finding the solution to
+\[ \arg\max_{\mathbf{w}} \mathbf{w}^ \mathrm{T} C\mathbf{w} \]
+such that $\|\mathbf{w}\|_2 = 1$
+where $C$ is the covariance matrix of the sample data) is NP-hard.
+Others have developed algorithms that test global optimality, although
+the computation time is $O(D^3)$ where $D$ is the dimension of the data.
+
+In this paper, Sigg and Buhmann claim to develop an $O(D^2)$ algorithm
+that enforces either the cardinality constraint,
+the non-negativity constraint, or both.
+Given the reduction in complexity, they note that this algorithm is
+especially useful for high-dimensional data (where $D >> N$).
+Other supposed advantages of the algorithm are that it is possible
+to specify the desired cardinality $K$ directly, which is not possible
+in much of the previous work, and the algorithm does not require
+direct work on the covariance matrix $C$, which is costly to obtain
+when $D$ or $N$ are large.
+
+\section{Theory}
+
+Sigg and Buhmann use an EM (expectation-maximization)-based algorithm
+to compute the first principle component at a given sparsity.
+They then build upon this algorithm to find the first non-negative
+principle component at a given sparsity and compute additional
+principle components.
+
+To develop their main algorithm for computing a sparse first principle
+component, they begin by noting that the $\mathbf{w}_{t+1}$
+specified by the M-step in an EM algorithm is the same vector as the
+solution for the quadratic program
+\[
+\mathbf{w}^* J(\mathbf{w}) =
+\arg\min_{\mathbf{w}} h \mathbf{w}^\mathrm{T} \mathbf{w} - 2 f^\mathrm{T} \mathbf{w}
+\]
+where $h = \sum_{n=1}^N y_n^2$, $f = \sum_{n=1}^N y_n \mathbf{x}_{(n)}$,
+and $y = \mathbf{x} \mathbf{w}_{(t)}$.
+
+The authors then call upon the fact that enforcing a constraint
+on $\|\mathbf{w}\|$ favors a sparse solution.
+To solve the modified problem
+\[
+\mathbf{w}^\circ = \arg\min_{
+  \mathbf
+{w} : \|\mathbf
+{w}\|_1 \le B
+} J(\mathbf{w})
+\]
+they use an axis aligned gradient descent procedure
+that is explained in FIGURE 1.
+When incorporating a non-negative constraint, they claim that it is
+optimal to set $w_i = 0$ for all $i$ such that $f_i < 0$
+and solve for the other elements of $\mathbf{w}$ as in the above process.
+
+Finally, Sigg and Buhmann argue that it is optimal to initialize
+the sparse PCA algorithm with the first unconstrained principle component
+and to initialize the non-negative PCA algorithm with a random unit vector
+in the non-negative orthant.
+
+The authors explain how finding the first principle component
+$\mathbf{w}_{(1)}$ leads directly to an iterative algorithm
+for finding the others.
+This is accomplished by calculating $\mathbf{x} P$
+where \[ P = I - \mathbf{w}_{(1)} \mathbf{w}_{(1)}^\mathrm{T} \textrm{,} \]
+the projection of the data onto the subspace orthogonal to the
+first principle component.
+The first principle component of $\mathbf{x} P$ is the second
+principle component of $\mathbf{x}$, so re-running the algorithm
+on subsequent projections yields additional principle components.
+
+\section{Implementation}
+
+To implement Sigg and Buchmann's algorithm for sparse PCA,
+we follow the procedure detailed on page 5 of their paper:
+
+\begin{algorithm}[H]
+  \KwData{$\mathbf{X} \in \mathds{R}^{N \times D}, K \in [1,D], \varepsilon $}
+  \KwResult{ The first principle component of $\mathbf{X}$ having cardinality $K$. }
+  initialization\;
+  \Repeat{not at end of this document}{
+    read current\;
+    \eIf{understand}{
+      go to next section\;
+      current section becomes this one\;
+     }{
+     go back to the beginning of current section\;
+   }
+  }
+  \caption{How to write algorithms}
+\end{algorithm}
+
+\end{document}
