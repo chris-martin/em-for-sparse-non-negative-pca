@@ -1,7 +1,13 @@
 \documentclass[twocolumn]{article}
 
-\usepackage{algorithm2e}
+\usepackage[algoruled]{algorithm2e}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{caption}
 \usepackage{dsfont}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{url}
 
 \title{Course Project for CSE 6740 / CS 7641 Summer 2012}
 \author{Nobles, Mallory \\ \texttt{mallory.nobles@gmail.com}
@@ -12,7 +18,7 @@
 \begin{document}
 \maketitle
 
-In their paper, ``Expectation-Maximization for Sparse \& Non-Negative PCA'',
+In their paper, ``Expectation-Maximization for Sparse and Non-Negative PCA'',
 Sigg and Buhmann develop an algorithm for finding principle components where
 there are two additional constraints on these vectors:
 a cardinality constraint and a non-negativity constraint.
@@ -37,7 +43,7 @@ the problem of estimating principle components, doing so has
 computational challenges. If either sparsity or non-negativity
 is enforced, the problem of determining the first principle component
 (finding the solution to
-\[ \arg\max_{\mathbf{w}} \mathbf{w}^ \mathrm{T} C\mathbf{w} \]
+\[ \arg\max_{\mathbf{w}} \mathbf{w}^\intercal C\mathbf{w} \]
 such that $\|\mathbf{w}\|_2 = 1$
 where $C$ is the covariance matrix of the sample data) is NP-hard.
 Others have developed algorithms that test global optimality, although
@@ -68,7 +74,8 @@ specified by the M-step in an EM algorithm is the same vector as the
 solution for the quadratic program
 \[
 \mathbf{w}^* J(\mathbf{w}) =
-\arg\min_{\mathbf{w}} h \mathbf{w}^\mathrm{T} \mathbf{w} - 2 f^\mathrm{T} \mathbf{w}
+\arg\min_{\mathbf{w}} h \mathbf{w}^\intercal \mathbf{w}
+  - 2 f^\intercal \mathbf{w}
 \]
 where $h = \sum_{n=1}^N y_n^2$, $f = \sum_{n=1}^N y_n \mathbf{x}_{(n)}$,
 and $y = \mathbf{x} \mathbf{w}_{(t)}$.
@@ -84,7 +91,7 @@ To solve the modified problem
 } J(\mathbf{w})
 \]
 they use an axis aligned gradient descent procedure
-that is explained in FIGURE 1.
+described on 4 of their paper.
 When incorporating a non-negative constraint, they claim that it is
 optimal to set $w_i = 0$ for all $i$ such that $f_i < 0$
 and solve for the other elements of $\mathbf{w}$ as in the above process.
@@ -97,33 +104,244 @@ in the non-negative orthant.
 The authors explain how finding the first principle component
 $\mathbf{w}_{(1)}$ leads directly to an iterative algorithm
 for finding the others.
-This is accomplished by calculating $\mathbf{x} P$
-where \[ P = I - \mathbf{w}_{(1)} \mathbf{w}_{(1)}^\mathrm{T} \textrm{,} \]
-the projection of the data onto the subspace orthogonal to the
-first principle component.
-The first principle component of $\mathbf{x} P$ is the second
-principle component of $\mathbf{x}$, so re-running the algorithm
+This is accomplished by calculating $\mathbf{X} P$
+where \[ P = I - \mathbf{w}_{(1)} \mathbf{w}_{(1)}^\intercal \textrm{.} \]
+$\mathbf{X}P$ is the projection of the data onto the subspace orthogonal
+to the first principle component.
+The first principle component of $\mathbf{X} P$ is the second
+principle component of $\mathbf{X}$, so re-running the algorithm
 on subsequent projections yields additional principle components.
 
 \section{Implementation}
 
 To implement Sigg and Buchmann's algorithm for sparse PCA,
-we follow the procedure detailed on page 5 of their paper:
+we use Algorithm \ref{alg:sparse}, which is detailed on
+page 5 of their paper.
 
-\begin{algorithm}[H]
-  \KwData{$\mathbf{X} \in \mathds{R}^{N \times D}, K \in [1,D], \varepsilon $}
-  \KwResult{ The first principle component of $\mathbf{X}$ having cardinality $K$. }
-  initialization\;
-  \Repeat{not at end of this document}{
-    read current\;
-    \eIf{understand}{
-      go to next section\;
-      current section becomes this one\;
-     }{
-     go back to the beginning of current section\;
-   }
+\begin{algorithm}[H]\dontprintsemicolon
+  \caption{EM for Sparse PCA}
+  \label{alg:sparse}
+  \KwData{
+    $\mathbf{X} \in \mathds{R}^{N \times D}$,
+    $K \in [1,D]$,
+    $\varepsilon$
   }
-  \caption{How to write algorithms}
+  \KwResult{
+    The first principle component of $\mathbf{X}$
+    having cardinality $K$.
+  }
+  $t \leftarrow 1$ \;
+  $\mathbf{w_{(t)}} \leftarrow$ first principle component
+  of unconstrained PCA on $\mathbf{X}$ \;
+  \Repeat{$| \mathbf{w}_{(t+1)}^\intercal \mathbf{w}_{(t)} |
+      > 1 - \varepsilon$}{
+    $\mathbf{y} \leftarrow \mathbf{X} \mathbf{w}_{(t)}$ \;
+    $\mathbf{w^*} \leftarrow f / h$ \;
+    $\mathbf{s} \leftarrow$ elements of $|w_i^*|$
+      sorted in descending order \;
+    $\boldsymbol\pi_1 \leftarrow$ indices of sorting order \;
+    $\boldsymbol\pi_2 \leftarrow$ indices of sorting order
+      when $\boldsymbol\pi_1$ is sorted in ascending order \;
+    $\mathbf{w}_{(t+1)} \leftarrow 0$ \;
+    \For{$k = 1 \ldots K$} {
+      Add $(\mathbf{s}_k - \mathbf{s}_{k+1})$
+      to elements $1,\ldots,k$ of $\mathbf{w}_{(t+1)}$
+    }
+    $\mathbf{w}_{(t)} \leftarrow \mathbf{w}_{(t)}$
+      permuted according to $\boldsymbol\pi_2$ \;
+    $\mathbf{w}_{(t)} \leftarrow \mathbf{w}_{(t)}$ $\circ$
+      sign$(\mathbf{w^*}) / \|\mathbf{w}_{(t+1)}\|_2$ \;
+    $t \leftarrow t + 1$
+  }
+  \Return $\mathbf{w}$
 \end{algorithm}
+
+Note that we compute the first principle coponent of the
+unconstrained problem using another procedure described by
+page 3 of Sigg \& Buhmann's paper.
+We choose sufficiently small $\varepsilon$ so that repeated
+iterations of ????????????????????????
+
+To implement non-negative sparse PCA, we used Algorithm \ref{alg:nonneg}.
+Note that, as in Algorithm \ref{alg:sparse},
+$\mathbf{X} \in \mathds{R}^{ N\times D}$ and $K \in \{1, \ldots, D\}$.
+This algorithm calls heavily upon the underlying algorithm for
+estimating sparse principle components.
+Because this non-negative algorithm is not discussed in great depth
+in the paper, to determine this procedure, we consulted the code
+provided by the author at
+\url{http://www-oldurls.inf.ethz.ch/personal/chrsigg/icml2008/}.
+
+\begin{algorithm}[H]\dontprintsemicolon
+  \caption{Non-Negative PCA}
+  \label{alg:nonneg}
+  \For{$i \in [1,10]$} {
+    $\mathbf{w}_0 \leftarrow$ random unit vector in non-negative orthant \;
+    $\mathbf{w}_1 \leftarrow$ sparse\_PCA($\mathbf{w}_0$, $\mathbf{X}$, $K$)
+      // Algorithm \ref{alg:sparse} \;
+    $\boldsymbol\pi \leftarrow$ index of $\mathbf{w}_1 > 0$ \;
+    $\mathbf{w_2} \leftarrow$ sparse\_PCA($\mathbf{w}_1$,
+    $\mathbf{X}[\boldsymbol\pi]$, length($\boldsymbol\pi$)) \;
+    $\mathbf{w} \leftarrow \mathbf{0}$ \;
+    $\mathbf{w}[\boldsymbol\pi] \leftarrow \mathbf{w}_2$
+  }
+  \Return The $\mathbf{w}$ that maximizes $\textrm{var}(\mathbf{Xw})$
+\end{algorithm}
+
+\section{Experiments}
+
+Through their experiments, the authors explore how their algorithms perform
+when the data has dimensions $N \times D$ such that $D > N$ and $D >> N$.
+To consider the case when $D > N$, they use a $2429 \times 361$ data set
+of CBCL face images.
+To consider the case when $D >> N$, they use a $72 \times 12582$ data set
+describing the gene sequences of leukemia patients.
+
+For both data sets, the authors show how the variance explained by the first
+principle component changes as the cardinality of the component varies.
+They compare these results to those of other popular sparse PCA algorithms.
+For the gene data, they also show the time needed to compute a sparse
+first principle component using the various algorithms.
+
+Similarly, for the face image data, the authors show how the variance
+explained by the first, non-negative principle component varies given
+its cardinality.
+They compare this to results from another non-negative, sparse PCA algorithm.
+Furthermore, they show the cumulative variance increases as additional
+non-negative, sparse principle components are considered.
+They repeat this experiment for two cases. First, in the case they enforce
+the requirement that principle components be orthogonal, and in the second
+they allow quasi-orthogonal components.
+
+Finally, Sigg and Buhmann consider the usefulness of their algorithms
+for classification. They use their algorithms to compute the sparse
+and non-negative sparse first principle components of a given cardinality.
+Then, they use $k$-means ($k=3$) to cluster the projected data $\mathbf{Xw}$
+and compare the clustering assignments to the true labels of the gene data,
+which identify the patent's type of leukemia.
+Here, the authors measure agreement using Jacard scores.
+The Jacard score ``reflects the intersection over union between the
+[k-means] clustering assignments and the expected classification''.
+More specifically, $J = \cap_{11} / (\cap_{11} + \cap_{01} + \cap_{10})$
+where $\cap_{11}$ is the number of pairs of instances that are
+classified together in both the algorithm's assignments and the true labels,
+$\cap_{01}$ is the number of pairs that are classified together by the
+algorithm but do not share the same true label, and $\cap_{10}$ is the
+number of pairs that share the same true label but are not classified
+together by the algorithm.
+Note that the range of $J$ is $[0, 1]$, where $0$ indicates no match
+and $1$ indicates a perfect match.
+The authors estimate the mean and standard deviation of $J$ when they
+cluster using sparse and non-negative sparse principle components
+of cardinalities ranging from $1$ to $250$.
+
+\section{Results}
+
+We were able to successfully replicate Sigg and Buhmann's graph of
+cardinality versus variance explained by the first sparse
+principle component for the gene data ($D >> N$).
+Figure \ref{fig:gene-variance} compares these results.
+
+\begin{figure}[H,width=\textwidth]
+\caption{Variance versus cardinality for gene data}
+\label{fig:gene-variance}
+\begin{subfigure}{0.5\textwidth}
+\caption{Our results}
+\includegraphics[width=\textwidth]{kitten.jpg}
+\end{subfigure}
+\begin{subfigure}{0.5\textwidth}
+\caption{Their results}
+\includegraphics[width=\textwidth]{kitten.jpg}
+\end{subfigure}
+\end{figure}
+
+Furthermore, we founds that the computation time of their sparse
+PCA algorithm was very fast for the gene expression data.
+However, we found that the other algorithms also performed well,
+and we were not able to replicate the discrepancies between
+running times claimed by Sigg and Buhmann.
+
+We also had difficulty reproducing the variance results for the
+face image data. Our results were of a generally similar character
+as those reported by the paper authors, but we found that the variance
+explained by the first principle component was significantly smaller
+for each algorithm than the authors reported, as we show
+in Figure \ref{fig:face-variance}.
+
+\begin{figure}[H,width=\textwidth]
+\caption{Variance versus cardinality for face data}
+\label{fig:face-variance}
+\begin{subfigure}{0.5\textwidth}
+\caption{Our results}
+\includegraphics[width=\textwidth]{kitten.jpg}
+\end{subfigure}
+\begin{subfigure}{0.5\textwidth}
+\caption{Their results}
+\includegraphics[width=\textwidth]{kitten.jpg}
+\end{subfigure}
+\end{figure}
+
+Because the values of the variance are consistently deflated
+across all algorithms, we suspect that the authors may have
+applied some treatment to either the data or the results
+that is not explicitly described in their paper.
+
+Non-negative results: ???????
+
+Multiple components: Higher variance, orthogonality not as strong
+as they suggest. [ show matrix of inner product vectors ] ??????
+
+Jacard scores: ??????
+
+\section{Analysis}
+
+One of Sigg and Buhmann's primary claims is that due to their
+relatively low complexity, their algorithms are particularly
+well suited to handle cases when $D$ is very large.
+However, their experiments do not strongly support this claim.
+In the figures that plot cardinality against variance
+explained by the first principle component, we see that for the
+gene data when $D >> N$, all of the algorithms perform very
+similarly and there is actually a larger variation in performance
+among algorithms for the face image data when $N$ is closer to $D$.
+Furthermore, in both cases, while Sigg and Buhmann's algorithm
+performs well compared to the other algorithms, its advantage is small.
+
+[ statement about run times ] ??????
+
+Finally, given their argument that their algorithms offer a particular
+advantage when $D >> N$, it is unclear to us why the authors choose
+to focus on the face image data when reporting their results for
+non-negative sparse PCA.
+
+During our analysis, we also find evidence of potential disadvantages
+of Sigg and Buhmann's algorithms that the authors do not address.
+For example, while the run time of the sparse PCA algorithm was
+very face for the gene expression data, this did not hold true for
+the face expression data. Long run times of the sparse PCA algorithm
+became a problem when performing the non-negative sparse PCA algorithm
+because each non-negative sparse PCA iteration includes two runs
+of the sparse PCA algorithm. Further, because the non-negative
+algorithm relies upon a random input vector, Sigg and Buhmann
+recommend running the algorithm ten times and using results from
+the most successful iteration. Since the sparse PCA algorithm takes
+about one minute to run, this implies that it would take $2+10+1=21$
+minutes to run the non-negative algorithm.
+
+Finally, we feel that the authors focus too exclusively on
+the first principle component.
+In practical applications, the variance explained by the first
+principle component is less important than that of the first
+several principle components that are able to capture a large
+amount of the variance.
+
+\section{Variance}
+
+We feel that Sigg and Buhmann's paper could be strengthened
+through several additonal experiments. First, ??????????
+
+?????????
+
+????????????????
 
 \end{document}
