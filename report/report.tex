@@ -1,4 +1,4 @@
-\documentclass[twocolumn]{article}
+\documentclass{article}
 
 \usepackage[algoruled]{algorithm2e}
 \usepackage{amsmath}
@@ -236,6 +236,19 @@ The authors estimate the mean and standard deviation of $J$ when they
 cluster using sparse and non-negative sparse principle components
 of cardinalities ranging from $1$ to $250$.
 
+\begin{figure}[H,width=\textwidth]
+\caption{Variance versus cardinality for gene data}
+\label{fig:jacard}
+\begin{subfigure}{0.5\textwidth}
+\caption{Our results}
+\includegraphics[width=\textwidth]{8.png}
+\end{subfigure}
+\begin{subfigure}{0.5\textwidth}
+\caption{Their results}
+\includegraphics[width=\textwidth]{7.png}
+\end{subfigure}
+\end{figure}
+
 \section{Results}
 
 We were able to successfully replicate Sigg and Buhmann's graph of
@@ -248,11 +261,11 @@ Figure \ref{fig:gene-variance} compares these results.
 \label{fig:gene-variance}
 \begin{subfigure}{0.5\textwidth}
 \caption{Our results}
-\includegraphics[width=\textwidth]{kitten.jpg}
+\includegraphics[width=\textwidth]{2.png}
 \end{subfigure}
 \begin{subfigure}{0.5\textwidth}
 \caption{Their results}
-\includegraphics[width=\textwidth]{kitten.jpg}
+\includegraphics[width=\textwidth]{1.png}
 \end{subfigure}
 \end{figure}
 
@@ -261,6 +274,20 @@ PCA algorithm was very fast for the gene expression data.
 However, we found that the other algorithms also performed well,
 and we were not able to replicate the discrepancies between
 running times claimed by Sigg and Buhmann.
+This is shown in Figure \ref{fig:timing}.
+
+\begin{figure}[H,width=\textwidth]
+\caption{Running time versus cardinality}
+\label{fig:timing}
+\begin{subfigure}{0.5\textwidth}
+\caption{Our results}
+\includegraphics[width=\textwidth]{6.png}
+\end{subfigure}
+\begin{subfigure}{0.5\textwidth}
+\caption{Their results}
+\includegraphics[width=\textwidth]{5.png}
+\end{subfigure}
+\end{figure}
 
 We also had difficulty reproducing the variance results for the
 face image data. Our results were of a generally similar character
@@ -274,11 +301,11 @@ in Figure \ref{fig:face-variance}.
 \label{fig:face-variance}
 \begin{subfigure}{0.5\textwidth}
 \caption{Our results}
-\includegraphics[width=\textwidth]{kitten.jpg}
+\includegraphics[width=\textwidth]{4.png}
 \end{subfigure}
 \begin{subfigure}{0.5\textwidth}
 \caption{Their results}
-\includegraphics[width=\textwidth]{kitten.jpg}
+\includegraphics[width=\textwidth]{3.png}
 \end{subfigure}
 \end{figure}
 
