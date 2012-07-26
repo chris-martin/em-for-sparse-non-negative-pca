@@ -27,11 +27,11 @@ of non-zero elements in the principle components, while
 the non-negativity constraint guarantees that no elements of
 the principle components are negative.
 Both of these constraints have practical importance and facilitate
-interpretability and ??????.
+interpretability and applicability.
 Typically in PCA, the dominant eigenvectors are difficult to interpret
 because they are linear combinations of all of the observed variables,
 and these linear combinations ``may mix both positive and negative weights,
-which might partly cancel each other'' (???? 2006).
+which might partly cancel each other'' (Zass 2006).
 Sparse, non-negative PSA addresses both of these issues.
 Futhermore, the restrictions that these constraints impose on the
 principle components are natural in many applications of PCA.
@@ -160,7 +160,8 @@ Note that we compute the first principle coponent of the
 unconstrained problem using another procedure described by
 page 3 of Sigg \& Buhmann's paper.
 We choose sufficiently small $\varepsilon$ so that repeated
-iterations of ????????????????????????
+iterations of the algorithm yields consistent estimates of
+the first principle component.
 
 To implement non-negative sparse PCA, we used Algorithm \ref{alg:nonneg}.
 Note that, as in Algorithm \ref{alg:sparse},
@@ -286,12 +287,12 @@ across all algorithms, we suspect that the authors may have
 applied some treatment to either the data or the results
 that is not explicitly described in their paper.
 
-Non-negative results: ???????
+% TODO Non-negative results
 
-Multiple components: Higher variance, orthogonality not as strong
-as they suggest. [ show matrix of inner product vectors ] ??????
+% TODO Multiple components: Higher variance, orthogonality not as strong
+% as they suggest. [ show matrix of inner product vectors ]
 
-Jacard scores: ??????
+% TODO Jacard scores
 
 \section{Analysis}
 
@@ -307,7 +308,7 @@ among algorithms for the face image data when $N$ is closer to $D$.
 Furthermore, in both cases, while Sigg and Buhmann's algorithm
 performs well compared to the other algorithms, its advantage is small.
 
-[ statement about run times ] ??????
+% TODO statement about run times
 
 Finally, given their argument that their algorithms offer a particular
 advantage when $D >> N$, it is unclear to us why the authors choose
@@ -335,13 +336,33 @@ principle component is less important than that of the first
 several principle components that are able to capture a large
 amount of the variance.
 
-\section{Variance}
+\section{Extensions}
 
 We feel that Sigg and Buhmann's paper could be strengthened
-through several additonal experiments. First, ??????????
+through several additonal experiments. First,
+D'Aspremont, El Ghaoul and Zhang
+use an alternative procedure for assessing the success of
+sparse PCA algorithms that we feel is more appropriate than
+Sigg and Buhmann's plots of cardinality versus veriance explained
+by the first principle component.
+In their method,
+D'Aspremont, El Ghaoul and Zhang
+determine the cardinality needed for the
+first sparse PC to explain 90\% of the variance explained
+by the unconstrained, full first PC.
+They then compute the first three principle components at this
+cardinality and determine the cumulative variance explained by
+these three components. They do this for each algorithm they
+wish to compare. This procedure has several advantages.
+First, it captures information about the cost in statistical
+fidelity of sparsity and compares how the sparse algorithm
+compares to unconstrained PCA. It also gives a more complete
+descriptions of the performance of each sparse algorithm, which
+facilitates comparison between the sparse algorithms.
 
-?????????
-
-????????????????
+We also feel that the paper should include a description of
+results for non-negative sparse PCA applies to the gene data,
+since this is a more relevant data set to the problem of
+efficient dimension reduction.
 
 \end{document}
