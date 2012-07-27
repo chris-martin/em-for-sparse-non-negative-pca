@@ -15,7 +15,8 @@
 
 \newcommand{\hilight}[1]{\colorbox{yellow}{#1}}
 
-\title{Course Project for CSE 6740 / CS 7641 Summer 2012}
+\title{Course Project for CSE 6740 / CS 7641 Summer 2012
+  : EM for Sparse and Non-Negative PCA}
 \author{Nobles, Mallory \\ \texttt{mallory.nobles@gmail.com}
   \and Martin, Christopher \\ \texttt{chris.martin@gatech.edu}
   \and Rice, Emily \\ \texttt{ricemily84@gmail.com} }
@@ -366,12 +367,53 @@ across all algorithms, we suspect that the authors may have
 applied some treatment to either the data or the results
 that is not explicitly described in their paper.
 
-% TODO Non-negative results
+When performing non-negative, sparse PCA on the face data,
+we find that the variance explained by each non-negative
+sparse first principle component is very similar to the
+variance explained by the sparse first principle component
+of the same cardinality.
+As the authors note, this is because the first principle component
+for the face data lies in the non-negative orthant, so this is the
+trivial case of non-negative, sparse PCA.
+To account for this, the authors project the data onto the orthogonal
+subspace of the first principle component.
+However, we do not make this correction because we feel that this
+distorts the results, since this is the same step taken to compute
+additional principle components.
+We also noticed that the explained variance curve was less smooth
+for the non-negative sparse PCA than for sparse PCA.
+This is because sparse PCA is finding global optimizers, which
+some iterations of non-negative sparse PCA find local optima.
 
-% TODO Multiple components: Higher variance, orthogonality not as strong
-% as they suggest. [ show matrix of inner product vectors ]
+Our attempts to compute multiple principle components were not successful.
+We found that our computer did not have sufficient memory to perform the
+projections necessary to compute multiple components for the gene data,
+even when the code was run on the Condor server. Furthermore, while we
+were able to compute multiple approximately orthonormal sparse principle
+components, the cumulative variance explained curve was not concave.
 
-% TODO Jacard scores
+Finally, we considered how sparse PCA could be used to enhance
+classifications methods.
+Sigg and Buhmann explain that they ``apply emPCA to select a
+subset of genes of the leukemia data \ldots [and] for each gene subset,
+we cluster the data using k-means ($k=3$) and compare the cluster
+assignments to the true labeling of the data.''
+However, they do not further indicate how they employ their
+sparse PCA algorithm for feature selection.
+
+Other authors have proposed various methods for feature selection
+with sparse PCA.
+To consider n features, some suggest computing a sparse principle
+component and selecting the features that correspond to the $k$
+largest values in the absolute value of the loadings vector.
+Others suggest computing a sparse PC of cardinality $n$ and using
+all features that correspond to non-zero elements of the loadings vector.
+Finally, others propose performing classification on the principle
+components, rather than on the data.
+We find that the last method is the least successful when only one
+principle component is considered.
+The other two methods perform similarly, especially for large
+numbers of features.
 
 \section{Analysis}
 
