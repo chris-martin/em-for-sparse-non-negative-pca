@@ -1,5 +1,8 @@
 #! /usr/bin/octave -qf
 
+% This requires the SPASM library:
+% http://www2.imm.dtu.dk/projects/spasm/
+
 % Normalizes the columns of the data matrix
 % to have mean and variance 1.
 function Y = normalize(X)
