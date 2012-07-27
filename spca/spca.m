@@ -1,8 +1,5 @@
 #! /usr/bin/octave -qf
 
-addpath('../matlab')
-addpath('/usr/share/octave/packages/3.2/statistics-1.0.10')
-
 % Normalizes the columns of the data matrix
 % to have mean and variance 1.
 function Y = normalize(X)
